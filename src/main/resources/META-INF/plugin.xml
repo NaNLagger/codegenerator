@@ -1,0 +1,26 @@
+<idea-plugin>
+    <id>ru.skblab.codegenerator</id>
+    <name>Codegenerator</name>
+    <vendor email="stepan.lyashenko@gmail.com">Stepan Lyashenko</vendor>
+    <idea-version since-build="182"/>
+
+    <description><![CDATA[
+    This plugin helps generate code for projects of skblab.
+    ]]></description>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends>org.jetbrains.kotlin</depends>
+
+    <actions>
+        <group id="CodeGenerator.FileMenu"
+               text="Screen"
+               description="Code generator plugin">
+            <add-to-group group-id="NewGroup" anchor="last"/>
+            <separator />
+            <action id="CreateScreenAction"
+                    class="presentation.createscreen.CreateScreenAnAction"
+                    text="Create Screen"
+                    description="Code generator plugin"/>
+        </group>
+    </actions>
+</idea-plugin>

@@ -1,0 +1,15 @@
+package %packageName%.presenter
+
+import moxy.InjectViewState
+import ru.skblab.skbbank.presenter.Presenter
+import javax.inject.Inject
+import ru.skblab.skbbank.core.navigation.router.FlowRouter
+import %packageName%.view.%name%View
+
+@InjectViewState
+class %name%Presenter @Inject constructor(
+    private val router: FlowRouter
+) : Presenter<%name%View>(router) {
+
+
+}

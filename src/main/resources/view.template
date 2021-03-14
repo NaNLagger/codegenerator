@@ -1,0 +1,10 @@
+package %packageName%.view
+
+import moxy.viewstate.strategy.AddToEndSingleStrategy
+import moxy.viewstate.strategy.StateStrategyType
+import ru.skblab.skbbank.view.Presentable
+
+@StateStrategyType(AddToEndSingleStrategy::class)
+interface %name%View : Presentable {
+
+}

@@ -22,10 +22,9 @@ class CreateScreenViewModel @Inject constructor(
     }
 
     fun onOkClicked(name: String, packageName: String, useArgument: Boolean, parentScope: String) {
-        val screenPackageName = "${packageName}.${name.toLowerCase()}"
-        val viewPackageName = "${screenPackageName}.view"
-        val presenterPackageName = "${screenPackageName}.presenter"
-        val modelPackageName = "${screenPackageName}.model"
+        val viewPackageName = "${packageName}.view"
+        val presenterPackageName = "${packageName}.presenter"
+        val modelPackageName = "${packageName}.model"
         val fragmentTemplateRes = if (useArgument) {
             TemplateRepository.MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE
         } else {
@@ -38,7 +37,7 @@ class CreateScreenViewModel @Inject constructor(
         val layoutTemplate = templateRepository.getTemplate(TemplateRepository.DEFAULT_LAYOUT_TEMPLATE)
         val args = mapOf(
             VariableEntity.NAME to name,
-            VariableEntity.PACKAGE_NAME to screenPackageName,
+            VariableEntity.PACKAGE_NAME to packageName,
             VariableEntity.NAME_SNAKE_CASE to name.toSnakeCase(),
             VariableEntity.PARENT_SCOPE to "DI.$parentScope"
         )

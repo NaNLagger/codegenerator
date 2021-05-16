@@ -2,8 +2,13 @@ package data
 
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.PsiShortNamesCache
+import com.intellij.psi.util.PsiTreeUtil
 import domain.entities.ModuleEntity
 import domain.entities.SourceRootEntity
+import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
+import org.jetbrains.kotlin.idea.search.getKotlinFqName
 import org.jetbrains.kotlin.idea.util.sourceRoots
 import javax.inject.Inject
 
@@ -32,6 +37,12 @@ class ProjectRepository @Inject constructor(
                     && pathTrimmed.contains("main", true)
                     && pathTrimmed.contains("res", true)
         }
+    }
+
+    fun findFields(): List<String> {
+        return PsiShortNamesCache.getInstance(project)
+            .allFieldNames
+            .toList()
     }
 
     private fun getSourceRoots(module: ModuleEntity): List<SourceRootEntity> {

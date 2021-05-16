@@ -2,9 +2,7 @@ package di
 
 import dagger.Module
 import dagger.Provides
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.MutableStateFlow
+import io.reactivex.subjects.BehaviorSubject
 import presentation.createscreen.CreateScreenState
 import javax.inject.Singleton
 
@@ -15,10 +13,6 @@ abstract class ActionModule {
 
         @Provides
         @Singleton
-        fun provideScope(): CoroutineScope = MainScope()
-
-        @Provides
-        @Singleton
-        fun provideCreateScreenState(): MutableStateFlow<CreateScreenState> = MutableStateFlow(CreateScreenState())
+        fun provideCreateScreenState(): BehaviorSubject<CreateScreenState> = BehaviorSubject.create<CreateScreenState>()
     }
 }

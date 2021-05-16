@@ -1,23 +1,18 @@
 package presentation.createscreen
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.DialogWrapper
 import di.ComponentManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import io.reactivex.subjects.BehaviorSubject
+import presentation.BaseDialog
+import utils.addCheckChangeListener
+import utils.addSelectedListener
+import utils.addTextChangeListener
 import javax.inject.Inject
-import javax.swing.JComponent
 
-class CreateScreenDialog : DialogWrapper(true) {
-
-    @Inject
-    lateinit var scope: CoroutineScope
+class CreateScreenDialog : BaseDialog<CreateScreenPanel>() {
 
     @Inject
-    lateinit var stateFlow: MutableStateFlow<CreateScreenState>
+    lateinit var stateSubject: BehaviorSubject<CreateScreenState>
 
     @Inject
     lateinit var viewModel: CreateScreenViewModel
@@ -25,33 +20,32 @@ class CreateScreenDialog : DialogWrapper(true) {
     @Inject
     lateinit var project: Project
 
-    private var panel: CreateScreenPanel? = null
-
     init {
         ComponentManager.actionComponent?.inject(this)
-        scope.launch { stateFlow.collect { panel?.setState(it) } }
         title = "Create Screen"
         init()
     }
 
-    override fun createCenterPanel(): JComponent? {
-        panel = CreateScreenPanel(project)
-        return panel
-    }
+    override fun createView(): CreateScreenPanel = CreateScreenPanel(project)
 
     override fun doOKAction() {
-        val uiPanel = panel ?: return
         viewModel.onOkClicked(
-            uiPanel.nameTextField.text,
-            uiPanel.packageTextField.text,
-            uiPanel.argumentHolderCheckBox.isSelected,
-            uiPanel.parentScopeTextField.text
+            view.editName.text,
+            view.editPackage.text,
+            view.argumentHolderCheckBox.isSelected,
+            view.editParentScope.text
         )
         close(OK_EXIT_CODE)
     }
 
-    override fun dispose() {
-        scope.cancel()
-        super.dispose()
+    override fun onViewCreated() {
+        stateSubject.subscribe { view.setState(it) }.addLifecycle()
+
+        view.editName.addTextChangeListener { viewModel.onNameChange(it) }
+        view.editParentScope.addTextChangeListener { viewModel.onParentScopeChange(it) }
+        view.argumentHolderCheckBox.addCheckChangeListener { viewModel.onArgumentHolderChange(it) }
+        view.comboBoxViewComponent.addSelectedListener { viewModel.onViewComponentTypeChange(it) }
+        view.comboBoxBinding.addSelectedListener { viewModel.onBindingTypeChange(it) }
     }
+
 }

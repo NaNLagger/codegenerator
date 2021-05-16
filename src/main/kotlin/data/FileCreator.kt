@@ -6,6 +6,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.search.PsiShortNamesCache
 import domain.entities.DirectoryEntity
 import domain.entities.FileEntity
 import domain.entities.SourceRootEntity

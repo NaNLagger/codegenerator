@@ -41,11 +41,34 @@ class ActionInteractor @Inject constructor(
         }
     }
 
-    fun getDiProperties(): List<String> {
+    fun getFullPathByPackage(fileName: String, fileType: FileEntity.FileType, packageName: String): String? {
         return projectRepository.getCodeSourceRoot(currentActionRepository.currentModuleEntity)?.let {
-            fileCreator.getPropertiesOfClass(it, "ru.skblab.skbbank.di", "DI.kt")
-        } ?: emptyList()
+            val directory = fileCreator.getDirectoryByPackage(it, packageName)
+            directory.psiDirectory.virtualFile.path + "/" + fullFileName(fileName, fileType)
+        }
     }
+
+    fun getFullPathByRes(fileName: String, fileType: FileEntity.FileType, resFolder: String = LAYOUT_DIRECTORY): String? {
+        return projectRepository.getResourceSourceRoot(currentActionRepository.currentModuleEntity)?.let {
+            val directory = fileCreator.getDirectory(it)
+            val layoutDirectory = fileCreator.findOrCreateSubdirectory(directory, resFolder)
+            layoutDirectory.psiDirectory.virtualFile.path + "/" + fullFileName(fileName, fileType)
+        }
+    }
+
+    fun getModulePath(): String {
+        return projectRepository.getResourceSourceRoot(currentActionRepository.currentModuleEntity)?.let {
+            val sourceIndex = it.path.lastIndexOf("main")
+            it.path.removeRange(sourceIndex, it.path.length)
+        } ?: ""
+    }
+
+    fun getDiProperties(): List<String> {
+        return projectRepository.findFields()
+    }
+
+    private fun fullFileName(fileName: String, fileType: FileEntity.FileType) =
+        "${fileName}.${fileType.extension}"
 
     private fun String.removeFilePath(isDirectory: Boolean) =
         if (!isDirectory) {

@@ -11,5 +11,6 @@ class VariableEntity(
         val PACKAGE_NAME = VariableEntity("packageName")
         val NAME_SNAKE_CASE = VariableEntity("nameSnakeCase")
         val PARENT_SCOPE = VariableEntity("parentScope")
+        val PARENT_SCOPE_PATH = VariableEntity("parentScopePath")
     }
 }

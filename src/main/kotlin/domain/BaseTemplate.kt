@@ -14,6 +14,10 @@ open class BaseTemplate(
         return FileEntity(replaceByTemplate(templateName, args), replaceByTemplate(templateBody, args), fileType)
     }
 
+    override fun generateName(args: Map<VariableEntity, String>): String {
+        return replaceByTemplate(templateName, args)
+    }
+
     private fun replaceByTemplate(template: String, args: Map<VariableEntity, String>): String {
         var result = template
         args.forEach { (variable, value) ->

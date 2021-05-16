@@ -6,8 +6,6 @@ import moxy.presenter.InjectPresenter
 import moxy.presenter.ProvidePresenter
 import %packageName%.presenter.%name%Presenter
 import ru.skblab.skbbank.feature.global.presentation.view.ToolbarFragment
-import ru.skblab.skbbank.R
-import ru.skblab.skbbank.di.DI
 import toothpick.Toothpick
 import kotlinx.android.synthetic.main.fmt_%nameSnakeCase%.*
 

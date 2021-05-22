@@ -1,7 +1,9 @@
 package data
 
 import com.intellij.lang.xml.XMLLanguage
+import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.guessModuleDir
 import com.intellij.psi.PsiFile
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.PsiManager
@@ -9,8 +11,10 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.PsiShortNamesCache
 import domain.entities.DirectoryEntity
 import domain.entities.FileEntity
+import domain.entities.ModuleEntity
 import domain.entities.SourceRootEntity
 import org.jetbrains.kotlin.idea.KotlinLanguage
+import org.jetbrains.kotlin.idea.util.sourceRoots
 import org.jetbrains.kotlin.psi.KtClassOrObject
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
@@ -29,7 +33,6 @@ class FileCreator @Inject constructor(
         val psiFile = PsiFileFactory.getInstance(project)
             .createFileFromText("${file.name}.${file.fileType.extension}", language, file.content)
         directory.psiDirectory.add(psiFile)
-        psiFile.getChildOfType<KtClassOrObject>()
     }
 
     fun getDirectory(sourceRootEntity: SourceRootEntity): DirectoryEntity {

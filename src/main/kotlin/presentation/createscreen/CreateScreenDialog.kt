@@ -29,12 +29,7 @@ class CreateScreenDialog : BaseDialog<CreateScreenPanel>() {
     override fun createView(): CreateScreenPanel = CreateScreenPanel(project)
 
     override fun doOKAction() {
-        viewModel.onOkClicked(
-            view.editName.text,
-            view.editPackage.text,
-            view.argumentHolderCheckBox.isSelected,
-            view.editParentScope.text
-        )
+        viewModel.onOkClicked()
         close(OK_EXIT_CODE)
     }
 

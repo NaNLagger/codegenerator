@@ -1,6 +1,5 @@
 package presentation.createscreen
 
-import data.FileCreator
 import data.TemplateRepository
 import data.WriteActionDispatcher
 import domain.entities.FileEntity
@@ -27,38 +26,18 @@ class CreateScreenViewModel @Inject constructor(
         loadInitState()
     }
 
-    fun onOkClicked(name: String, packageName: String, useArgument: Boolean, parentScope: String) {
-        val viewPackageName = "${packageName}.view"
-        val presenterPackageName = "${packageName}.presenter"
-        val modelPackageName = "${packageName}.model"
-        val fragmentTemplateRes = if (useArgument) {
-            TemplateRepository.MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE
-        } else {
-            TemplateRepository.MVP_FRAGMENT_TEMPLATE
-        }
-        val viewTemplate = templateRepository.getTemplate(TemplateRepository.MVP_VIEW_TEMPLATE)
-        val fragmentTemplate = templateRepository.getTemplate(fragmentTemplateRes)
-        val presenterTemplate = templateRepository.getTemplate(TemplateRepository.MVP_PRESENTER_TEMPLATE)
-        val screenDataTemplate = templateRepository.getTemplate(TemplateRepository.SCREEN_DATA_TEMPLATE)
-        val layoutTemplate = templateRepository.getTemplate(TemplateRepository.DEFAULT_LAYOUT_TEMPLATE)
+    fun onOkClicked() {
+        val templateEntities = createTemplateEntities()
         val args = mapOf(
-            VariableEntity.NAME to name,
-            VariableEntity.PACKAGE_NAME to packageName,
-            VariableEntity.NAME_SNAKE_CASE to name.toSnakeCase(),
-            VariableEntity.PARENT_SCOPE to parentScope
+            VariableEntity.NAME to screenState.name,
+            VariableEntity.PACKAGE_NAME to screenState.packageName,
+            VariableEntity.NAME_SNAKE_CASE to screenState.name.toSnakeCase(),
+            VariableEntity.PARENT_SCOPE to screenState.parentScope
         )
-        val viewFile = viewTemplate.generate(args)
-        val fragmentFile = fragmentTemplate.generate(args)
-        val presenterFile = presenterTemplate.generate(args)
-        val screenDataFile = screenDataTemplate.generate(args)
-        val layoutFile = layoutTemplate.generate(args)
         writeActionDispatcher.dispatch {
-            actionInteractor.addFileToPackage(viewFile, viewPackageName)
-            actionInteractor.addFileToPackage(fragmentFile, viewPackageName)
-            actionInteractor.addFileToPackage(presenterFile, presenterPackageName)
-            actionInteractor.addFileToResources(layoutFile, FileCreator.LAYOUT_DIRECTORY)
-            if (useArgument) {
-                actionInteractor.addFileToPackage(screenDataFile, modelPackageName)
+            templateEntities.forEach {
+                val template = templateRepository.getTemplate(it.templateId)
+                actionInteractor.addFile(it.filePath, template.generate(args))
             }
         }
     }
@@ -100,7 +79,7 @@ class CreateScreenViewModel @Inject constructor(
     }
 
     private fun pathToTree(templates: List<TemplateEntity>): DefaultMutableTreeNode {
-        val modulePath = actionInteractor.getModulePath()
+        val modulePath = actionInteractor.getModuleMainPath()
         val resultNodes: MutableMap<String, DefaultMutableTreeNode> = mutableMapOf()
         var rootNode: DefaultMutableTreeNode? = null
         templates.forEach { entity ->

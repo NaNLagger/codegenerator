@@ -26,37 +26,38 @@ class ActionInteractor @Inject constructor(
         }
     }
 
-    fun addFileToPackage(file: FileEntity, packageName: String) {
-        projectRepository.getCodeSourceRoot(currentActionRepository.currentModuleEntity)?.let {
-            val directory = fileCreator.getDirectoryByPackage(it, packageName)
-            fileCreator.addFile(file, directory)
-        }
-    }
+    fun addFile(path: String, file: FileEntity) {
+        val moduleDirectory = projectRepository.getModuleDirectory(currentActionRepository.currentModuleEntity)
+        val modulePath = moduleDirectory.psiDirectory.virtualFile.path
+        val resultDirectory = path
+            .removePrefix(modulePath)
+            .split('/')
+            .filter { it.isNotBlank() }
+            .dropLast(1)
+            .fold(moduleDirectory) { directory, name ->
+                fileCreator.findOrCreateSubdirectory(directory, name)
+            }
 
-    fun addFileToResources(file: FileEntity, resFolder: String = LAYOUT_DIRECTORY) {
-        projectRepository.getResourceSourceRoot(currentActionRepository.currentModuleEntity)?.let {
-            val directory = fileCreator.getDirectory(it)
-            val layoutDirectory = fileCreator.findOrCreateSubdirectory(directory, resFolder)
-            fileCreator.addFile(file, layoutDirectory)
-        }
+        fileCreator.addFile(file, resultDirectory)
     }
 
     fun getFullPathByPackage(fileName: String, fileType: FileEntity.FileType, packageName: String): String? {
         return projectRepository.getCodeSourceRoot(currentActionRepository.currentModuleEntity)?.let {
-            val directory = fileCreator.getDirectoryByPackage(it, packageName)
-            directory.psiDirectory.virtualFile.path + "/" + fullFileName(fileName, fileType)
+            it.path + "/" + packageName.replace('.', '/') + "/" + fullFileName(fileName, fileType)
         }
     }
 
-    fun getFullPathByRes(fileName: String, fileType: FileEntity.FileType, resFolder: String = LAYOUT_DIRECTORY): String? {
+    fun getFullPathByRes(
+        fileName: String,
+        fileType: FileEntity.FileType,
+        resFolder: String = LAYOUT_DIRECTORY
+    ): String? {
         return projectRepository.getResourceSourceRoot(currentActionRepository.currentModuleEntity)?.let {
-            val directory = fileCreator.getDirectory(it)
-            val layoutDirectory = fileCreator.findOrCreateSubdirectory(directory, resFolder)
-            layoutDirectory.psiDirectory.virtualFile.path + "/" + fullFileName(fileName, fileType)
+            it.path + "/" + resFolder + "/" + fullFileName(fileName, fileType)
         }
     }
 
-    fun getModulePath(): String {
+    fun getModuleMainPath(): String {
         return projectRepository.getResourceSourceRoot(currentActionRepository.currentModuleEntity)?.let {
             val sourceIndex = it.path.lastIndexOf("main")
             it.path.removeRange(sourceIndex, it.path.length)

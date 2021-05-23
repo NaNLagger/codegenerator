@@ -13,5 +13,6 @@ data class CreateScreenState(
     val bindingType: BindingType = BindingType.ViewBinding,
     val useArgumentHolder: Boolean = false,
     val diScopes: List<String> = emptyList(),
-    val previewNodes: MutableTreeNode = DefaultMutableTreeNode()
+    val previewNodes: MutableTreeNode = DefaultMutableTreeNode(),
+    val templatePreview: String = ""
 )

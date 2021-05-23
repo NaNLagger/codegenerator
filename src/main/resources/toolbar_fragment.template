@@ -1,0 +1,52 @@
+package ${packageName}.view
+
+import android.os.Bundle
+import android.view.View
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ${packageName}.presenter.${name}Presenter
+#if($useArgument != "")import ${packageName}.model.${name}ScreenData
+#end
+import ru.skblab.skbbank.feature.global.presentation.view.ToolbarFragment
+#if($useArgument != "")import ru.skblab.skbbank.util.ArgumentsHolder
+#end
+import ru.skblab.skbbank.di.module
+import ${manifestPackage}.R
+import ${parentScopePackage}.${parentScope}
+import toothpick.Toothpick
+#if ($synthetic != "")import kotlinx.android.synthetic.main.fmt_{nameSnakeCase}.*
+#end
+#if ($viewBinding != "")import ${manifestPackage}.databinding.Fmt${name}Binding
+#end
+#if ($viewBinding != "")import ru.skblab.skbbank.util.viewbinding.viewBinding
+#end
+
+class ${name}Fragment : ToolbarFragment(), ${name}View#if($useArgument != ""), ArgumentsHolder<${name}ScreenData>#end {
+    #if ($viewBinding != "")private val viewBinding by viewBinding(Fmt${name}Binding::bind)
+#end
+    override val layoutRes = R.layout.fmt_${nameSnakeCase}
+
+    @InjectPresenter
+    lateinit var presenter: ${name}Presenter
+
+    @ProvidePresenter
+    fun providePresenter(): ${name}Presenter =
+        Toothpick.openScopes(${parentScope}, scopeName)
+            #if($useArgument != "").module { bind(${name}ScreenData::class.java).toInstance(args) }
+#end
+            .getInstance(${name}Presenter::class.java)
+            .also { Toothpick.closeScope(scopeName) }
+
+    override fun onSecureViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onSecureViewCreated(view, savedInstanceState)
+
+    }
+
+    override fun onBackPressed() = presenter.onBackPressed()
+
+    companion object {
+        fun newInstance(screenData: ${name}ScreenData): ${name}Fragment {
+            return ${name}Fragment().apply { #if($useArgument != "")args = screenData#end }
+        }
+    }
+}

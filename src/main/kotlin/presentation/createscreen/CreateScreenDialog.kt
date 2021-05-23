@@ -8,6 +8,7 @@ import utils.addCheckChangeListener
 import utils.addSelectedListener
 import utils.addTextChangeListener
 import javax.inject.Inject
+import javax.swing.tree.DefaultMutableTreeNode
 
 class CreateScreenDialog : BaseDialog<CreateScreenPanel>() {
 
@@ -41,6 +42,10 @@ class CreateScreenDialog : BaseDialog<CreateScreenPanel>() {
         view.argumentHolderCheckBox.addCheckChangeListener { viewModel.onArgumentHolderChange(it) }
         view.comboBoxViewComponent.addSelectedListener { viewModel.onViewComponentTypeChange(it) }
         view.comboBoxBinding.addSelectedListener { viewModel.onBindingTypeChange(it) }
+        view.treePreview.addTreeSelectionListener {
+            val treeNode = it.path.lastPathComponent as? DefaultMutableTreeNode?
+            treeNode?.let { viewModel.onSelectedNode(treeNode) }
+        }
     }
 
 }

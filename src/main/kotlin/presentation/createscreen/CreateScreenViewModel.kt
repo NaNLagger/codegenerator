@@ -28,12 +28,7 @@ class CreateScreenViewModel @Inject constructor(
 
     fun onOkClicked() {
         val templateEntities = createTemplateEntities()
-        val args = mapOf(
-            VariableEntity.NAME to screenState.name,
-            VariableEntity.PACKAGE_NAME to screenState.packageName,
-            VariableEntity.NAME_SNAKE_CASE to screenState.name.toSnakeCase(),
-            VariableEntity.PARENT_SCOPE to screenState.parentScope
-        )
+        val args = generateArgs()
         writeActionDispatcher.dispatch {
             templateEntities.forEach {
                 val template = templateRepository.getTemplate(it.templateId)
@@ -78,6 +73,18 @@ class CreateScreenViewModel @Inject constructor(
         stateSubject.onNext(screenState)
     }
 
+    fun onSelectedNode(node: DefaultMutableTreeNode) {
+        val userObject = node.userObject
+        screenState = if(userObject is TemplateEntity) {
+            val template = templateRepository.getTemplate(userObject.templateId)
+            val args = generateArgs()
+            screenState.copy(templatePreview = template.generate(args).content)
+        } else {
+            screenState.copy(templatePreview = "Click on template in tree to see the preview code")
+        }
+        stateSubject.onNext(screenState)
+    }
+
     private fun pathToTree(templates: List<TemplateEntity>): DefaultMutableTreeNode {
         val modulePath = actionInteractor.getModuleMainPath()
         val resultNodes: MutableMap<String, DefaultMutableTreeNode> = mutableMapOf()
@@ -93,7 +100,7 @@ class CreateScreenViewModel @Inject constructor(
                     resultNodes[node] = DefaultMutableTreeNode(node)
                     rootNode = resultNodes[node]
                 } else if (resultNodes.containsKey(node).not()) {
-                    resultNodes[node] = DefaultMutableTreeNode(node)
+                    resultNodes[node] = DefaultMutableTreeNode(if (index == nodes.lastIndex) entity else node)
                     resultNodes[prevNode]?.add(resultNodes[node])
                 }
             }
@@ -106,18 +113,13 @@ class CreateScreenViewModel @Inject constructor(
             val viewPackageName = "${it.packageName}.view"
             val presenterPackageName = "${it.packageName}.presenter"
             val modelPackageName = "${it.packageName}.model"
-            val fragmentTemplateRes = getViewComponentTemplateRes(it.viewComponentType, it.useArgumentHolder)
+            val fragmentTemplateRes = getViewComponentTemplateRes(it.viewComponentType)
             val viewTemplate = templateRepository.getTemplate(TemplateRepository.MVP_VIEW_TEMPLATE)
             val fragmentTemplate = templateRepository.getTemplate(fragmentTemplateRes)
             val presenterTemplate = templateRepository.getTemplate(TemplateRepository.MVP_PRESENTER_TEMPLATE)
             val screenDataTemplate = templateRepository.getTemplate(TemplateRepository.SCREEN_DATA_TEMPLATE)
             val layoutTemplate = templateRepository.getTemplate(TemplateRepository.DEFAULT_LAYOUT_TEMPLATE)
-            val args = mapOf(
-                VariableEntity.NAME to it.name,
-                VariableEntity.PACKAGE_NAME to it.packageName,
-                VariableEntity.NAME_SNAKE_CASE to it.name.toSnakeCase(),
-                VariableEntity.PARENT_SCOPE to it.parentScope
-            )
+            val args = generateArgs()
             val viewPath = actionInteractor.getFullPathByPackage(
                 viewTemplate.generateName(args),
                 FileEntity.FileType.KOTLIN,
@@ -157,30 +159,27 @@ class CreateScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getViewComponentTemplateRes(
-        viewComponentType: ViewComponentType,
-        useArgument: Boolean
-    ): String {
+    private fun getViewComponentTemplateRes(viewComponentType: ViewComponentType): String {
         return when (viewComponentType) {
-            ViewComponentType.Toolbar -> getToolbarTemplateRes(useArgument)
-            ViewComponentType.Flow -> getToolbarTemplateRes(useArgument)
-            ViewComponentType.BottomDialog -> getToolbarTemplateRes(useArgument)
+            ViewComponentType.Toolbar -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
+            ViewComponentType.Flow -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
+            ViewComponentType.BottomDialog -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
         }
     }
 
-    private fun getToolbarTemplateRes(useArgument: Boolean): String {
-        return if (useArgument) {
-            TemplateRepository.MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE
-        } else {
-            TemplateRepository.MVP_FRAGMENT_TEMPLATE
+    private fun generateArgs(): Map<VariableEntity, String> {
+        return screenState.let {
+            mapOf(
+                VariableEntity.NAME to it.name,
+                VariableEntity.PACKAGE_NAME to it.packageName,
+                VariableEntity.NAME_SNAKE_CASE to it.name.toSnakeCase(),
+                VariableEntity.PARENT_SCOPE to it.parentScope,
+                VariableEntity.USE_ARGUMENT to if (it.useArgumentHolder) "use" else "",
+                VariableEntity.SYNTHETIC to if (it.bindingType == BindingType.Synthetic) "use" else "",
+                VariableEntity.VIEW_BINDING to if (it.bindingType == BindingType.ViewBinding) "use" else "",
+                VariableEntity.MANIFEST_PACKAGE to it.packageName,
+                VariableEntity.PARENT_SCOPE_PACKAGE to it.packageName,
+            )
         }
-    }
-
-    private fun getFlowTemplateRes(useArgument: Boolean): String {
-        return "" //TODO
-    }
-
-    private fun getBottomDialogTemplateRes(useArgument: Boolean): String {
-        return "" //TODO
     }
 }

@@ -51,7 +51,7 @@ class CreateScreenPanel(
             gridx = 1
             gridy = 0
         })
-        add(textAreaPreview, GridBagConstraints().apply {
+        add(createPreviewAreaPanel(), GridBagConstraints().apply {
             gridwidth = 2
             insets = Insets(10, 10, 10, 10)
             fill = GridBagConstraints.BOTH
@@ -67,6 +67,7 @@ class CreateScreenPanel(
         editPackage.text = state.packageName
         argumentHolderCheckBox.isSelected = state.useArgumentHolder
         editParentScope.setVariants(state.diScopes)
+        textAreaPreview.text = state.templatePreview
         updateTree(state)
     }
 
@@ -93,6 +94,24 @@ class CreateScreenPanel(
         })
         return previewPanel
     }
+
+    private fun createPreviewAreaPanel(): JPanel {
+        val previewPanel = JPanel().apply {
+            layout = GridBagLayout().apply {
+                columnWidths = intArrayOf(0, 0)
+                rowHeights = intArrayOf(0, 0)
+                columnWeights = doubleArrayOf(1.0, Double.MIN_VALUE)
+                rowWeights = doubleArrayOf(1.0, Double.MIN_VALUE)
+            }
+        }
+        previewPanel.add(JScrollPane(textAreaPreview), GridBagConstraints().apply {
+            fill = GridBagConstraints.BOTH
+            gridx = 0
+            gridy = 0
+        })
+        return previewPanel
+    }
+
 
     private fun createFormPanel(): JPanel {
         val formPanel = JPanel().apply {

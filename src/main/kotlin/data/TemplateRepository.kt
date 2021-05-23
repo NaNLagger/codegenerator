@@ -2,10 +2,14 @@ package data
 
 import domain.BaseTemplate
 import domain.Template
+import domain.VelocityTemplate
 import domain.entities.FileEntity
+import org.apache.velocity.app.VelocityEngine
 import javax.inject.Inject
 
-class TemplateRepository @Inject constructor() {
+class TemplateRepository @Inject constructor(
+    private val velocityEngine: VelocityEngine
+) {
 
     private val templates: MutableMap<String, Template> = mutableMapOf()
 
@@ -27,16 +31,11 @@ class TemplateRepository @Inject constructor() {
             Resources.getResourceContent("/presenter.template"),
             FileEntity.FileType.KOTLIN
         )
-        templates[MVP_FRAGMENT_TEMPLATE] = BaseTemplate(
-            MVP_FRAGMENT_TEMPLATE,
+        templates[MVP_TOOLBAR_FRAGMENT_TEMPLATE] = VelocityTemplate(
+            velocityEngine,
+            MVP_TOOLBAR_FRAGMENT_TEMPLATE,
             "%name%Fragment",
-            Resources.getResourceContent("/fragment.template"),
-            FileEntity.FileType.KOTLIN
-        )
-        templates[MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE] = BaseTemplate(
-            MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE,
-            "%name%Fragment",
-            Resources.getResourceContent("/fragment_with_argument.template"),
+            Resources.getResourceContent("/toolbar_fragment.template"),
             FileEntity.FileType.KOTLIN
         )
         templates[SCREEN_DATA_TEMPLATE] = BaseTemplate(
@@ -55,8 +54,7 @@ class TemplateRepository @Inject constructor() {
 
     companion object {
         const val MVP_VIEW_TEMPLATE = "MVP View"
-        const val MVP_FRAGMENT_TEMPLATE = "MVP Fragment"
-        const val MVP_FRAGMENT_WITH_ARGUMENT_TEMPLATE = "MVP Fragment with argument"
+        const val MVP_TOOLBAR_FRAGMENT_TEMPLATE = "MVP Toolbar Fragment"
         const val MVP_PRESENTER_TEMPLATE = "MVP Presenter"
         const val SCREEN_DATA_TEMPLATE = "Screen Data"
         const val DEFAULT_LAYOUT_TEMPLATE = "default layout"

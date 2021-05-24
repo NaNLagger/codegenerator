@@ -28,6 +28,7 @@ class CreateScreenViewModel @Inject constructor(
 
     fun onOkClicked() {
         val templateEntities = createTemplateEntities()
+        screenState = screenState.copy(parentScopePackage = actionInteractor.getFieldPackage(screenState.parentScope))
         val args = generateArgs()
         writeActionDispatcher.dispatch {
             templateEntities.forEach {
@@ -38,10 +39,10 @@ class CreateScreenViewModel @Inject constructor(
     }
 
     private fun loadInitState() {
-
         screenState = CreateScreenState(
             packageName = actionInteractor.getCurrentPackage(),
-            diScopes = actionInteractor.getDiProperties()
+            diScopes = actionInteractor.getDiProperties(),
+            manifestPackage = actionInteractor.getManifestPackage()
         )
         screenState = screenState.copy(previewNodes = pathToTree(createTemplateEntities()))
         stateSubject.onNext(screenState)
@@ -177,8 +178,8 @@ class CreateScreenViewModel @Inject constructor(
                 VariableEntity.USE_ARGUMENT to if (it.useArgumentHolder) "use" else "",
                 VariableEntity.SYNTHETIC to if (it.bindingType == BindingType.Synthetic) "use" else "",
                 VariableEntity.VIEW_BINDING to if (it.bindingType == BindingType.ViewBinding) "use" else "",
-                VariableEntity.MANIFEST_PACKAGE to it.packageName,
-                VariableEntity.PARENT_SCOPE_PACKAGE to it.packageName,
+                VariableEntity.MANIFEST_PACKAGE to it.manifestPackage,
+                VariableEntity.PARENT_SCOPE_PACKAGE to it.parentScopePackage,
             )
         }
     }

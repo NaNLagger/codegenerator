@@ -14,5 +14,7 @@ data class CreateScreenState(
     val useArgumentHolder: Boolean = false,
     val diScopes: List<String> = emptyList(),
     val previewNodes: MutableTreeNode = DefaultMutableTreeNode(),
-    val templatePreview: String = ""
+    val templatePreview: String = "",
+    val parentScopePackage: String = "unknown",
+    val manifestPackage: String = "unknown",
 )

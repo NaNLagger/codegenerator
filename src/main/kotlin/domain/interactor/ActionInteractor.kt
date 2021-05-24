@@ -68,6 +68,14 @@ class ActionInteractor @Inject constructor(
         return projectRepository.findFields()
     }
 
+    fun getManifestPackage(): String {
+        return projectRepository.getManifestPackage(currentActionRepository.currentModuleEntity)
+    }
+
+    fun getFieldPackage(name: String): String {
+        return projectRepository.getFieldPackage(name).replace(".$name", "")
+    }
+
     private fun fullFileName(fileName: String, fileType: FileEntity.FileType) =
         "${fileName}.${fileType.extension}"
 

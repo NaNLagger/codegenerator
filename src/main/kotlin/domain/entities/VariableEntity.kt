@@ -15,6 +15,6 @@ class VariableEntity(
         val SYNTHETIC = VariableEntity("synthetic")
         val VIEW_BINDING = VariableEntity("viewBinding")
         val MANIFEST_PACKAGE = VariableEntity("manifestPackage")
-        val PARENT_SCOPE_PACKAGE = VariableEntity("manifestPackage")
+        val PARENT_SCOPE_PACKAGE = VariableEntity("parentScopePackage")
     }
 }

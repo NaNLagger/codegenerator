@@ -3,18 +3,15 @@ package data
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
-import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiManager
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.PsiShortNamesCache
-import com.intellij.psi.util.PsiTreeUtil
 import domain.entities.DirectoryEntity
 import domain.entities.ModuleEntity
 import domain.entities.SourceRootEntity
-import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
-import org.jetbrains.kotlin.idea.search.getKotlinFqName
+import org.jetbrains.kotlin.idea.search.projectScope
 import org.jetbrains.kotlin.idea.util.sourceRoots
 import javax.inject.Inject
+import org.jetbrains.kotlin.idea.refactoring.fqName.getKotlinFqName
 
 class ProjectRepository @Inject constructor(
     private val project: Project
@@ -57,6 +54,18 @@ class ProjectRepository @Inject constructor(
         return PsiShortNamesCache.getInstance(project)
             .allFieldNames
             .toList()
+    }
+
+    fun getManifestPackage(module: ModuleEntity): String {
+        val mainDirectory = getModuleDirectory(module).psiDirectory.findSubdirectory("src")?.findSubdirectory("main")
+        return mainDirectory?.findFile("AndroidManifest.xml")?.let { manifestFile ->
+            Regex("<manifest[^>]*package=\"([^\"]+)\"").find(manifestFile.text)?.groupValues?.last()
+        } ?: ""
+    }
+
+    fun getFieldPackage(name: String): String {
+        val field = PsiShortNamesCache.getInstance(project).getFieldsByName(name, project.projectScope()).firstOrNull()
+        return field?.getKotlinFqName()?.asString() ?: ""
     }
 
     private fun getSourceRoots(module: ModuleEntity): List<SourceRootEntity> {

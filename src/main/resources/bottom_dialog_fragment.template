@@ -7,12 +7,11 @@ import moxy.presenter.ProvidePresenter
 import ${packageName}.presenter.${name}Presenter
 #if($useArgument != "")import ${packageName}.model.${name}ScreenData
 #end
-import ru.skblab.skbbank.feature.global.presentation.view.ToolbarFragment
 #if($useArgument != "")import ru.skblab.skbbank.util.ArgumentsHolder
 #end
-import ru.skblab.skbbank.di.module
 import ${manifestPackage}.R
 import ${parentScopePackage}.${parentScope}
+import ru.skblab.skbbank.dialog.BaseBottomDialogFragment
 import toothpick.Toothpick
 #if ($synthetic != "")import kotlinx.android.synthetic.main.fmt_{nameSnakeCase}.*
 #end
@@ -21,10 +20,11 @@ import toothpick.Toothpick
 #if ($viewBinding != "")import ru.skblab.skbbank.util.viewbinding.viewBinding
 #end
 
-class ${name}Fragment : ToolbarFragment(), ${name}View#if($useArgument != ""), ArgumentsHolder<${name}ScreenData>#end {
-    #if ($viewBinding != "")private val viewBinding by viewBinding(Fmt${name}Binding::bind)
+class ${name}Fragment : BaseBottomDialogFragment(), ${name}View#if($useArgument != ""), ArgumentsHolder<${name}ScreenData>#end {
+    #if ($viewBinding != "")private val viewBinding by viewBinding(Fmt${name}Binding::bind, this::contentViewProvider)
 #end
-    override val layoutRes = R.layout.fmt_${nameSnakeCase}
+    override val contentView: Int = R.layout.fmt_${nameSnakeCase}
+    override val closeListener: () -> Unit = { presenter.onBackPressed() }
 
     @InjectPresenter
     lateinit var presenter: ${name}Presenter
@@ -37,12 +37,10 @@ class ${name}Fragment : ToolbarFragment(), ${name}View#if($useArgument != ""), A
             .getInstance(${name}Presenter::class.java)
             .also { Toothpick.closeScope(scopeName) }
 
-    override fun onSecureViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onSecureViewCreated(view, savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
     }
-
-    override fun onBackPressed() = presenter.onBackPressed()
 
     companion object {
         fun newInstance(#if($useArgument != "")screenData: ${name}ScreenData#end): ${name}Fragment {

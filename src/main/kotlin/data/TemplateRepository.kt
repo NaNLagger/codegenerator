@@ -38,6 +38,20 @@ class TemplateRepository @Inject constructor(
             Resources.getResourceContent("/toolbar_fragment.template"),
             FileEntity.FileType.KOTLIN
         )
+        templates[MVP_FLOW_FRAGMENT_TEMPLATE] = VelocityTemplate(
+            velocityEngine,
+            MVP_FLOW_FRAGMENT_TEMPLATE,
+            "%name%Fragment",
+            Resources.getResourceContent("/flow_fragment.template"),
+            FileEntity.FileType.KOTLIN
+        )
+        templates[MVP_BOTTOM_DIALOG_FRAGMENT_TEMPLATE] = VelocityTemplate(
+            velocityEngine,
+            MVP_BOTTOM_DIALOG_FRAGMENT_TEMPLATE,
+            "%name%Fragment",
+            Resources.getResourceContent("/bottom_dialog_fragment.template"),
+            FileEntity.FileType.KOTLIN
+        )
         templates[SCREEN_DATA_TEMPLATE] = BaseTemplate(
             SCREEN_DATA_TEMPLATE,
             "%name%ScreenData",
@@ -55,6 +69,8 @@ class TemplateRepository @Inject constructor(
     companion object {
         const val MVP_VIEW_TEMPLATE = "MVP View"
         const val MVP_TOOLBAR_FRAGMENT_TEMPLATE = "MVP Toolbar Fragment"
+        const val MVP_FLOW_FRAGMENT_TEMPLATE = "MVP Flow Fragment"
+        const val MVP_BOTTOM_DIALOG_FRAGMENT_TEMPLATE = "MVP Bottom Dialog Fragment"
         const val MVP_PRESENTER_TEMPLATE = "MVP Presenter"
         const val SCREEN_DATA_TEMPLATE = "Screen Data"
         const val DEFAULT_LAYOUT_TEMPLATE = "default layout"

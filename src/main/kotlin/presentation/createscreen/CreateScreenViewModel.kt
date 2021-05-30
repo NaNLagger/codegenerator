@@ -61,6 +61,7 @@ class CreateScreenViewModel @Inject constructor(
 
     fun onViewComponentTypeChange(viewComponentType: ViewComponentType) {
         screenState = screenState.copy(viewComponentType = viewComponentType)
+        screenState = screenState.copy(previewNodes = pathToTree(createTemplateEntities()))
         stateSubject.onNext(screenState)
     }
 
@@ -163,8 +164,8 @@ class CreateScreenViewModel @Inject constructor(
     private fun getViewComponentTemplateRes(viewComponentType: ViewComponentType): String {
         return when (viewComponentType) {
             ViewComponentType.Toolbar -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
-            ViewComponentType.Flow -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
-            ViewComponentType.BottomDialog -> TemplateRepository.MVP_TOOLBAR_FRAGMENT_TEMPLATE
+            ViewComponentType.Flow -> TemplateRepository.MVP_FLOW_FRAGMENT_TEMPLATE
+            ViewComponentType.BottomDialog -> TemplateRepository.MVP_BOTTOM_DIALOG_FRAGMENT_TEMPLATE
         }
     }
 

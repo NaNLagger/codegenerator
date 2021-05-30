@@ -1,0 +1,60 @@
+package ${packageName}.view
+
+import androidx.fragment.app.Fragment
+import moxy.presenter.InjectPresenter
+import moxy.presenter.ProvidePresenter
+import ${packageName}.presenter.${name}Presenter
+#if($useArgument != "")import ${packageName}.model.${name}ScreenData
+#end
+#if($useArgument != "")import ru.skblab.skbbank.util.ArgumentsHolder
+#end
+import ru.skblab.skbbank.core.di.moduleFlow
+import ru.skblab.skbbank.core.feature.global.CoreFlowFragment
+import ru.skblab.skbbank.core.navigation.router.GlobalRouter
+import ru.skblab.skbbank.core.system.flow.FragmentFlowNavigator
+import ru.skblab.skbbank.di.inject
+import ${manifestPackage}.R
+import ${parentScopePackage}.${parentScope}
+import toothpick.Toothpick
+
+class ${name}Fragment : CoreFlowFragment(), ${name}View#if($useArgument != ""), ArgumentsHolder<${name}ScreenData>#end {
+
+    override val containerId: Int = R.id.screenContainer
+    override val layoutRes: Int = R.layout.fmt_flow
+
+    @InjectPresenter
+    lateinit var presenter: ${name}Presenter
+
+    @ProvidePresenter
+    fun providePresenter(): ${name}Presenter =
+        Toothpick.openScopes(${parentScope}, scopeName)
+            .getInstance(${name}Presenter::class.java)
+            .also { Toothpick.closeScope(scopeName) }
+
+    override fun injectDependencies() {
+        Toothpick.closeScope(${parentScope})
+        Toothpick.openScopes(/* TODO Add Parent Scope*/, ${parentScope})
+            .moduleFlow {
+#if($useArgument != "")                bind(${name}ScreenData::class.java).toInstance(args)
+#end
+            }
+            .inject(this)
+    }
+
+    override fun provideNavigator(router: GlobalRouter): FragmentFlowNavigator =
+        object : FragmentFlowNavigator(this, router, containerId) {
+            override fun createFragment(screenKey: String?, data: Any?): Fragment? {
+                return super.createFragment(screenKey, data)
+            }
+        }
+
+    override fun onFinallyFinished() {
+        Toothpick.closeScope(${parentScope})
+    }
+
+    companion object {
+        fun newInstance(#if($useArgument != "")screenData: ${name}ScreenData#end): ${name}Fragment {
+            return ${name}Fragment().apply { #if($useArgument != "")args = screenData#end }
+        }
+    }
+}
